@@ -174,6 +174,9 @@ function NN.base.train(self, data, generate, target, evaldata)
     local count = 0
     local loss = 2^30
     local passeddataset = 0
+    -- wait these never even got added???
+    local epsilon = 1e-4
+    local lr = 0.01
 
     -- a wild function that took three weeks too long to implement appeared!
     local function fd_step(inputs, truth)
@@ -293,7 +296,8 @@ function NN.base.mutationtest(self, inputs, originalloss, targetloss, truth, max
         end
     end
 
-    self = lazyahhcopy(bestver)
+    self.inputlayers = bestver.inputlayers
+    self.manipulationlayers = bestver.manipulationlayers
 end
 
 -- Was intended to be used through the high level func `{yournn}.train`. 
