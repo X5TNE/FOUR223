@@ -2,6 +2,8 @@
 
 just an optimizer inspired by NNs that I want to really love chaos. "Why?" No reason just funny.
 
+in other words this is FAKE neuroevolution
+
 ---
 
 - What is this?
