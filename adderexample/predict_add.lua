@@ -1,4 +1,4 @@
-local NN = dofile("nn.lua")
+local NN = dofile("../nn.lua")
 local SCALE = 5000
 -- these exist because tanh sucks and I love GELU more, but I use tanh anyway 😭 (slowed down + reverb)
 local function normalize(x)

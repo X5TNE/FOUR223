@@ -1,7 +1,7 @@
 -- train_add.lua
 -- basically we train a FOUR model that adds numbers together even though FOUR could do better with binary compression and stuff.
 math.randomseed(os.time())
-local NN = dofile("nn.lua")
+local NN = dofile("../nn.lua")
 local model = NN.random(2, 6)
 local SCALE = 5000
 -- these exist because tanh sucks and I love GELU more, but I use tanh anyway 😭
