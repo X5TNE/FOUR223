@@ -7,8 +7,7 @@ just an optimizer inspired by NNs that I want to really love chaos. "Why?" No re
 - What is this?
 > idk poorly documented evolution system with random things mixed in
 - What can I use it for?
-> how am i supposed to know i just made it
-> make an adder or something
+> make it generate or compress something ig
 - "is tis a transgormis"
 > No.
 
