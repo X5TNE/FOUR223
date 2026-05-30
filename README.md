@@ -1,5 +1,9 @@
 # FOUR223
 
+just an optimizer inspired by NNs that I want to really love chaos. "Why?" No reason just funny.
+
+---
+
 - What is this?
 > idk poorly documented evolution system with random things mixed in
 - What can I use it for?
