@@ -3,7 +3,9 @@
 -- Author: beanboi_223 aka X5TNE, https://lunarai.pp.ua/whoami.html
 -- Github: https://github.com/X5TNE/FOUR223
 -- What I'd call a fake neural network.
--- What someone thought was evolutionary.
+-- What someone thought was revolutionary.
+
+-- Don't take any of the comments seriously unless they actually document what each func takes in as input.
 
 -- CODE LICENSE: Mozilla Public License
 
@@ -11,7 +13,7 @@ NN = {}
 
 -- Define "the base"
 
--- Will be used as the holder for funcs "forward", "train", and.. grade? when was that function a thing????
+-- Will be used as the holder for funcs "forward", "train"
 NN.base = {}
 
 -- Huh? No I don't think this is dotprd or project.
@@ -104,7 +106,7 @@ function NN.base.forward(self, inputs, usenoise)
     end
 
     local mixed = {}
-    for x = 1, #weights do
+    for x = 1, #inputs do -- we may ignore some stuff this way but whatevs
         local sum = 0
         for y = 1, #inputs do
             local interaction = math.abs(newoldinputswth[x] - newoldinputswth[y]) / 10 + newoldinputswth[y] * weights[x][y]
@@ -163,7 +165,8 @@ end
 -- More about this training function:
 -- it's just a wrapper
 
-function NN.base.train(self, data, generate, target, evaldata)
+function NN.base.train(self, data, generate, target, evaldata, printloss)
+    if not printloss then local printloss = false end
     if not self.inputlayers then error("Not self. -FOUR223 NN / NN.base.forward") end
     if ((not evaldata) and (not generate)) then error("gng the target") end
     if data == nil or #data == 0 then local nodata = true end
@@ -176,7 +179,7 @@ function NN.base.train(self, data, generate, target, evaldata)
     local passeddataset = 0
     -- wait these never even got added???
     local epsilon = 1e-4
-    local lr = 0.01
+    local lr = 0.09
 
     -- a wild function that took three weeks too long to implement appeared!
     local function fd_step(inputs, truth)
@@ -240,6 +243,7 @@ function NN.base.train(self, data, generate, target, evaldata)
             truth = sample.output
             dist = math.abs(inference - truth)
             loss = dist
+            if printloss == true then print(loss) end
             if dist <= target then count = count + 1 else count = 0 end
         end
 
@@ -250,6 +254,7 @@ function NN.base.train(self, data, generate, target, evaldata)
                 truth = sample.output
                 dist = math.abs(inference - truth)
                 loss = dist
+                if printloss == true then print(loss) end
                 if dist <= target then count = count + 1 else count = 0 end
             end
         end
@@ -397,3 +402,52 @@ end
 -- script prob doesn't even work, i just wrote it without testin.
 -- lua 5.4
 -- 1.0 finished: 5/28/26
+
+-- omg wild save and load function was just made 5/29/26
+
+function NN.save(model, filename)
+    local f = assert(io.open(filename, "w"))
+    -- inputlayers "the trench"
+    for i = 1, #model.inputlayers do
+        f:write(model.inputlayers[i] .. " ")
+    end
+    f:write("===\n")
+    -- manipulation layers "no man's land"
+    for l = 1, #model.manipulationlayers do
+        for i = 1, #model.inputlayers do
+            f:write(model.manipulationlayers[l][i] .. " ")
+        end
+        f:write("\n")
+    end
+    f:close()
+end
+
+function NN.load(filename, input_size, manipulation_layers_count)
+    local f = assert(io.open(filename, "r"))
+    local model = NN.random(input_size, manipulation_layers_count)
+    -- load inputlayers
+    local line = f:read("*l")
+    local i = 1
+    for num in string.gmatch(line, "([^%s]+)") do
+        model.inputlayers[i] = tonumber(num)
+        i = i + 1
+    end
+    -- load manipulation layers
+    for l = 1, manipulation_layers_count do
+        local line = f:read("*l")
+        if line == "===" then line = f:read("*l") end -- next line
+        local j = 1
+        for num in string.gmatch(line, "([^%s]+)") do
+            -- guard just in case file is malformed
+            if j <= #model.inputlayers then
+                model.manipulationlayers[l][j] = tonumber(num)
+            end
+            j = j + 1
+        end
+    end
+    f:close()
+    return model
+end
+
+-- oh yeah and return the table bc this is a module
+return NN
