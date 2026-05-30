@@ -411,7 +411,7 @@ function NN.save(model, filename)
     for i = 1, #model.inputlayers do
         f:write(model.inputlayers[i] .. " ")
     end
-    f:write("===\n")
+    f:write("\n===\n")
     -- manipulation layers "no man's land"
     for l = 1, #model.manipulationlayers do
         for i = 1, #model.inputlayers do
