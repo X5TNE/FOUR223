@@ -1,5 +1,7 @@
 # FOUR223
 
+**recommendation?: don't go all in on big, meaty weights, start small with something like manipulation layer count: 6.**
+
 just an optimizer inspired by NNs that I want to really love chaos. "Why?" No reason just funny.
 
 in other words this is FAKE neuroevolution
