@@ -3,7 +3,7 @@
 math.randomseed(os.time())
 local NN = dofile("../nn.lua")
 local model = NN.random(2, 6)
-local SCALE = 5000
+local SCALE = 25
 -- these exist because tanh sucks and I love GELU more, but I use tanh anyway 😭
 function normalize(x)
     return x / SCALE
@@ -37,7 +37,7 @@ print("Training...")
 model:train(
     {},-- empty dataset
     generatesample,
-    0.01,-- target loss, large bc i have no faith in this
+    0.4,-- target loss, large bc i have no faith in this
     evaldata,
     true
 )

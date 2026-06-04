@@ -33,7 +33,8 @@ function NN.project(inputs, weights)
     return globalsum -- combined???
 end
 
--- Normalize funcs
+-- esotuhrdxjhuiaesij9u03serru0areosfu9gt0iae0js9uts05raesu9t8grjyuiesrhu9rgjoiyji34ahwserxufjubth4A
+
 function NN.tanh(x)
     if x > 20 then return 1 end
     if x < -20 then return -1 end
@@ -45,6 +46,10 @@ function NN.gelu(x)
     -- approximation of GELU (fast version)
     local c = 0.7978845608 -- sqrt(2/pi)
     return 0.5 * x * (1 + NN.tanh(c * (x + 0.044715 * x * x * x)))
+end
+
+function NN.ilovethisdamnfunctionsilu(x)
+    return x / (1 + math.exp(-x))
 end
 
 -- Random                                                                                                                                                                                                   omg guys jake paul here this thing that has four in the name intended a four digit random number thing i think do you guys think this is important 🫨🫨🫨🫨
@@ -68,12 +73,14 @@ end
 
 -- Inputs Count: How many inputs are passed in? (Must be more than one.. think of this as weights 🫨)
 -- Manipulation Layers Count: How many times should the inputs be manipulated? (Think of this as the more weights... 🤯)
-function NN.random(inputscnt, manipulationlayerscnt)
-    if inputscnt < 1 or inputscnt > manipulationlayerscnt then error("Input count does not match conditions. -FOUR223 NN / NN.random") end
+function NN.random(inputscnt, manipulationlayerscnt, multipleouts)
+    if multipleouts == nil then multipleouts = false end
+    if inputscnt < 1 then error("Input count does not match conditions. -FOUR223 NN / NN.random") end
     local returnednn = {}
     setmetatable(returnednn, { __index = NN.base })
     returnednn.inputlayers = {}
     returnednn.manipulationlayers = {}
+    returnednn.multipleouts = false
     for i=1, inputscnt do
         table.insert(returnednn.inputlayers, NN.randomnum()) -- wannabe bias
     end
@@ -85,6 +92,9 @@ function NN.random(inputscnt, manipulationlayerscnt)
         end
         returnednn.manipulationlayers[l] = layer
     end
+
+    returnednn.multipleouts = multipleouts
+
     return returnednn
 end
 
@@ -105,30 +115,94 @@ function NN.base.forward(self, inputs, usenoise)
         newoldinputswth[i] = inputs[i] * self.inputlayers[i]
     end
 
-    local mixed = {}
-    for x = 1, #inputs do -- we may ignore some stuff this way but whatevs
-        local sum = 0
-        for y = 1, #inputs do
-            local interaction = math.abs(newoldinputswth[x] - newoldinputswth[y]) / 10 + newoldinputswth[y] * weights[x][y]
-            sum = sum + NN.gelu(interaction)
-        end
-        mixed[x] = sum
-    end
-
-    local safeinput = NN.project(mixed, weights) -- not sure this would even work :/
-    local newinput = safeinput
-
     local noise = 0
-
-    for x=1, #weights do
-        for y=1, #mixed do
-            if usenoise == true then noise = (NN.randomnum() / 10) end
-            newinput = NN.tanh(newinput * weights[x][y] + noise)
-            noise = 0
+    if self.multipleouts == false then
+        local mixed = {}
+        for x = 1, #inputs do -- we may ignore some stuff this way but whatevs
+            local sum = 0
+            for y = 1, #inputs do
+                local interaction = math.abs(newoldinputswth[x] - newoldinputswth[y]) / 10 + newoldinputswth[y] * weights[x][y]
+                sum = sum + NN.gelu(interaction)
+            end
+            mixed[x] = sum
         end
-    end
+        local safeinput = NN.project(mixed, weights) -- not sure this would even work :/
+        local newinput = safeinput
 
-    return newinput
+        for x=1, #weights do
+            for y=1, #mixed do
+                if usenoise == true then noise = (NN.randomnum() / 10) end
+                newinput = NN.tanh(newinput * weights[x][y] + noise)
+                noise = 0
+            end
+        end
+
+        return newinput
+    else -- NEW (6/4/26): no longer sleep deprived guys we on self-at*$^@EMPLOYMENT 😁
+        local mixed = newoldinputswth
+
+        -- stank "gentlemost_approximation" func
+        local function softmax_like(scores)
+            local maxv = -1e9
+            for i = 1, #scores do
+                if scores[i] > maxv then maxv = scores[i] end
+            end
+
+            local sum = 0
+            local exps = {}
+
+            for i = 1, #scores do
+                -- stabilize
+                local e = math.exp(scores[i] - maxv)
+                exps[i] = e
+                sum = sum + e
+            end
+
+            for i = 1, #exps do
+                exps[i] = exps[i] / (sum + 1e-9)
+            end
+
+            return exps
+        end
+
+        -- self-attention
+        for x = 1, #inputs do
+            local scores = {}
+
+            for y = 1, #inputs do
+                -- query-key similarity (simple dot product proxy)
+                local interaction = inputs[x] * inputs[y]
+
+                -- stabilize / shape with GELU (your available activation)
+                scores[y] = NN.gelu(interaction)
+            end
+            -- "hi guys im self-attention in four223! wait im not self-attention? no that doesn't make sense. oh dear.. what am i????"
+            -- "Well clearly I don't see anything transformer like so your def not self-att. Just a better mixing function for multipleouts in my opinion."
+            -- "aww why can't i be self-attention"
+            -- "cuz hardware-wise im broke and your in lua not pytorch 😭"
+            local attn = softmax_like(scores)
+
+            local sum = 0
+            for y = 1, #inputs do
+                -- value = input itself (since no separate V projection available)
+                sum = sum + attn[y] * inputs[y]
+            end
+
+            mixed[x] = sum -- #SERVE divas!!
+        end
+        local output = {}
+
+        for z=1, #mixed do
+            local val = mixed[z]
+            for x=1, #weights do
+                for y=1, #mixed do
+                    val = NN.ilovethisdamnfunctionsilu(val * weights[x][y])
+                end
+            end
+            output[z] = val
+        end
+        return output
+    end
 end
 
 -- Train
@@ -166,11 +240,14 @@ end
 -- it's just a wrapper
 
 function NN.base.train(self, data, generate, target, evaldata, printloss)
-    if not printloss then local printloss = false end
-    if not self.inputlayers then error("Not self. -FOUR223 NN / NN.base.forward") end
+    local nodata
+    local nogenerate
+    if printloss == nil then printloss = false end
+    if not self.inputlayers then error("Not self. -FOUR223 NN / self:train") end
+    if self.multipleouts == true then error("Sorry! At least some homework is required :) -FOUR223 NN / self:train") end
     if ((not evaldata) and (not generate)) then error("gng the target") end
-    if data == nil or #data == 0 then local nodata = true end
-    if not generate then local nogenerate = true end
+    if data == nil or #data == 0 then nodata = true end
+    if not generate then nogenerate = true end
     if nogenerate and nodata then error("No data or generator given. -FOUR223 NN / self:train.") end
     if not target then print("WARNING: Target loss not given, using default 0.5. -FOUR223 NN / self:train.") target = 0.5 end
     
@@ -204,6 +281,7 @@ function NN.base.train(self, data, generate, target, evaldata, printloss)
         end
     end
 
+    local datacnt = 1
     repeat -- A clever jester had influenced decisions at court just by making the right joke at the right time, but a clown has not. Why? The clown never got the title to appear in the house.
         local sample
         local output
@@ -218,7 +296,7 @@ function NN.base.train(self, data, generate, target, evaldata, printloss)
             distanceakalossiguess = math.abs(inferenceithink - truth)
             if distanceakalossiguess > target then
                 if math.random(1, 4) == 4 then
-                    self.mutationtest(sample.input, distanceakalossiguess, target, truth, 2000)
+                    self.mutationtest(self, sample.input, distanceakalossiguess, target, truth, 2000)
                 else
                     fd_step(sample.input, truth)
                 end
@@ -243,29 +321,28 @@ function NN.base.train(self, data, generate, target, evaldata, printloss)
             truth = sample.output
             dist = math.abs(inference - truth)
             loss = dist
-            if printloss == true then print(loss) end
+            if printloss ~= false then print(loss) end
             if dist <= target then count = count + 1 else count = 0 end
         end
 
         if evaldata then
-            for i=1, #evaldata do
-                sample = evaldata[i]
-                inference = self:forward(sample.input)
-                truth = sample.output
-                dist = math.abs(inference - truth)
-                loss = dist
-                if printloss == true then print(loss) end
-                if dist <= target then count = count + 1 else count = 0 end
-            end
+            sample = evaldata[datacnt]
+            inference = self:forward(sample.input)
+            truth = sample.output
+            dist = math.abs(inference - truth)
+            loss = dist
+            if printloss ~= false then print(loss) end
+            if dist <= target then count = count + 1 else count = 0 end
+            if datacnt >= #evaldata then datacnt = 1 else datacnt = datacnt + 1 end
         end
     until loss <= target and count >= 1000 -- ok but class of 2020 still didnt get a graduation 
 end
 
 -- Intended to be used through the high level func `{yournn}.train`.
--- **I mean it isnt backprop., but I like it this way**
 -- Don't mind the naming.
 -- "stochastic hill climbing / evolution strategy"
 function NN.base.mutationtest(self, inputs, originalloss, targetloss, truth, maxtries)
+    if self.multipleouts == true then error("Sorry! At least some homework is required :) -FOUR223 NN / self:train") end
     local function lazyahhcopy(neuraln)
         local currself = NN.random(#neuraln.inputlayers, #neuraln.manipulationlayers)
         for x=1, #neuraln.manipulationlayers do
@@ -419,21 +496,29 @@ function NN.save(model, filename)
         end
         f:write("\n")
     end
+    -- the flag
+    f:write("\n---\n")
+    if model.multipleouts == true then
+        f:write("1")
+    else
+        f:write("0")
+    end
     f:close()
 end
 
+-- omg i think this is the first time underscores are used :O
 function NN.load(filename, input_size, manipulation_layers_count)
     local f = assert(io.open(filename, "r"))
-    local model = NN.random(input_size, manipulation_layers_count)
+    local model = NN.random(input_size, manipulation_layers_count, true)
     -- load inputlayers
     local line = f:read("*l")
-    local i = 1
+    local i=1
     for num in string.gmatch(line, "([^%s]+)") do
         model.inputlayers[i] = tonumber(num)
         i = i + 1
     end
     -- load manipulation layers
-    for l = 1, manipulation_layers_count do
+    for l=1, manipulation_layers_count do
         local line = f:read("*l")
         if line == "===" then line = f:read("*l") end -- next line
         local j = 1
@@ -445,6 +530,9 @@ function NN.load(filename, input_size, manipulation_layers_count)
             j = j + 1
         end
     end
+    line = f:read("*l")
+    if line == "---" then line = f:read("*l") end
+    if line == 1 then model.multipleouts = true else model.multipleouts = false end
     f:close()
     return model
 end
