@@ -6,6 +6,7 @@
 -- What someone thought was revolutionary.
 
 -- Don't take any of the comments seriously unless they actually document what each func takes in as input.
+-- btw further updates not guaranteed to this file, check FOUR223.lua :D
 
 -- CODE LICENSE: Mozilla Public License
 
@@ -71,7 +72,7 @@ end
 
 -- Define a new, random "NN"
 
--- Inputs Count: How many inputs are passed in? (Must be more than one.. think of this as weights 🫨)
+-- Inputs Count: How many inputs are passed in? (<s>Must be more than one</s> what???? no... think of this as weights 🫨)
 -- Manipulation Layers Count: How many times should the inputs be manipulated? (Think of this as the more weights... 🤯)
 function NN.random(inputscnt, manipulationlayerscnt, multipleouts)
     if multipleouts == nil then multipleouts = false end
@@ -314,6 +315,7 @@ function NN.base.train(self, data, generate, target, evaldata, printloss)
                     end
                 end
             end
+            passeddataset = passeddataset + 1
         end
         if (not evaldata) then
             sample = generate()
