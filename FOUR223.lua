@@ -182,4 +182,4 @@ function four223.functions.forward(self, inputs)
     end
 end
 
-return four223.
+return four223
