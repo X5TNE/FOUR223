@@ -1,4 +1,4 @@
-uhh forgot to fix this i was gonna but i didn't so here is an AI generated version, be carful because ai is dangerous and can get things really rong:
+uhh forgot to make this readme i was gonna but i didn't so here is an AI generated version, be carful because ai is dangerous and can get things really rong:
 # FOUR223
 
 An experimental neural-network-and-evolution-inspired machine learning model implemented entirely in Lua.
